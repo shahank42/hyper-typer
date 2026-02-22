@@ -38,19 +38,24 @@ function TodoApp() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+            <label htmlFor="new-todo" className="sr-only">
+              New task
+            </label>
             <Input
+              id="new-todo"
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               placeholder="What needs to be done?"
+              autoComplete="off"
               className="flex-1"
             />
             <Button type="submit">Add</Button>
           </form>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" aria-live="polite">
             {todos === undefined ? (
               <p className="text-center text-slate-500 dark:text-slate-400 py-4 animate-pulse">
-                Loading tasks...
+                Loading tasks…
               </p>
             ) : todos.length === 0 ? (
               <p className="text-center text-slate-500 dark:text-slate-400 py-4">
@@ -88,7 +93,7 @@ function TodoApp() {
                     onClick={() => void remove({ id: todo._id })}
                     className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                     <span className="sr-only">Delete</span>
                   </Button>
                 </div>
