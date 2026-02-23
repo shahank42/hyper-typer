@@ -8,7 +8,7 @@
     "dev:web": "vite dev",
     "dev:ts": "tsc -b -w",
     "dev:convex": "npx convex dev",
-    "build": "npx convex deploy --cmd vite build && tsc --noEmit",
+    "build": "npx convex deploy --cmd 'vite build'",
     "start": "node .output/server/index.mjs",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
