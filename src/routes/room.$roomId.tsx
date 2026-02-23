@@ -7,6 +7,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import type { GameStatus, Racer, RacerColor } from "~/lib/types";
 import { getPlayerStats, getRemotePlayerStats, getForwardProgress } from "~/lib/stats";
 import { pickRandom } from "~/lib/passages";
+import { calculateElapsedSeconds } from "~/lib/time";
 
 import { RaceTrack } from "~/components/race-track";
 import { StatsBar } from "~/components/stats-bar";
@@ -52,7 +53,7 @@ function RoomPage() {
     isHost,
     myPlayer,
     remotePlayers,
-    timeLeft,
+    elapsedTime,
     countdownSeconds,
     myVote,
     voteSummary,
@@ -68,6 +69,7 @@ function RoomPage() {
     }
   }, [isLoading, game, navigate]);
 
+  // Early returns - all hooks must be called before these
   if (!guestId || isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
@@ -189,7 +191,7 @@ function RoomPage() {
       players={players}
       remotePlayers={remotePlayers}
       passage={passage}
-      timeLeft={timeLeft}
+      elapsedTime={elapsedTime}
       myVote={myVote}
       voteSummary={voteSummary}
       onReplay={handleReplay}
@@ -228,7 +230,7 @@ function RaceView({
   players,
   remotePlayers,
   passage,
-  timeLeft,
+  elapsedTime,
   myVote,
   voteSummary,
   onReplay,
@@ -241,17 +243,22 @@ function RaceView({
   players: PlayerDoc[];
   remotePlayers: Racer[];
   passage: string;
-  timeLeft: number;
+  elapsedTime: number;
   myVote: "replay" | "exit" | undefined;
   voteSummary: VoteSummaryEntry[];
   onReplay: () => void;
   onLeave: () => void;
 }) {
-  const gameStatus: GameStatus = game.status === "running" ? "running" : "finished";
+  const isLocallyFinished = myPlayer.finished;
+  const showPersonalResults = isLocallyFinished && game.status === "running";
+  const showFinalResults = game.status === "finished";
+
+  const gameStatus: GameStatus = showFinalResults ? "finished" : "running";
+  const effectiveStatus: GameStatus = showPersonalResults ? "finished" : gameStatus;
 
   const { typed, totalKeystrokes, errors, handleChange, handleKeyDown } = useLocalTyping(
     passage,
-    gameStatus,
+    effectiveStatus,
   );
 
   useProgressSync(
@@ -263,10 +270,14 @@ function RaceView({
       totalKeystrokes,
       errors,
     },
-    gameStatus,
+    effectiveStatus,
   );
 
-  const elapsed = game.startedAt ? Math.max(0.1, (Date.now() - game.startedAt) / 1000) : 0.1;
+  const elapsedForLocal =
+    isLocallyFinished && myPlayer.finishedAt && game.startedAt
+      ? calculateElapsedSeconds(game.startedAt, myPlayer.finishedAt)
+      : elapsedTime;
+  const elapsed = elapsedForLocal || 0.1;
 
   const stats = getPlayerStats(typed, passage, totalKeystrokes, errors, elapsed);
 
@@ -277,13 +288,13 @@ function RaceView({
     name: myPlayer.name,
     progress: getForwardProgress(totalKeystrokes, errors, passage.length, isFinished),
     color: myPlayer.color as RacerColor,
-    finished: isFinished,
+    finished: isLocallyFinished,
   };
 
   const racers = [localRacer, ...remotePlayers];
 
   const rankings =
-    gameStatus === "finished"
+    effectiveStatus === "finished"
       ? players
           .map((p) => {
             if (p.guestId === myPlayer.guestId) {
@@ -296,12 +307,16 @@ function RaceView({
                 finished: isFinished,
               };
             }
+            const playerElapsed =
+              p.finished && p.finishedAt && game.startedAt
+                ? calculateElapsedSeconds(game.startedAt, p.finishedAt)
+                : elapsed;
             const remoteStats = getRemotePlayerStats(
               p.typedLength,
               passage.length,
               p.totalKeystrokes,
               p.errors,
-              elapsed,
+              playerElapsed,
             );
             return {
               name: p.name,
@@ -315,16 +330,19 @@ function RaceView({
           .sort((a, b) => b.progress - a.progress)
       : [];
 
+  const waitingCount = players.filter((p) => !p.finished).length;
+
   return (
     <main className="h-dvh flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 overflow-hidden">
       <div className="w-full text-left opacity-50 mb-4 shrink-0">
         <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
       </div>
 
-      {gameStatus === "finished" ? (
+      {effectiveStatus === "finished" ? (
         <div className="w-full flex-1 flex items-center justify-center relative min-h-0">
           <MultiplayerResults
             rankings={rankings}
+            waitingForPlayers={showPersonalResults ? waitingCount : undefined}
             myVote={myVote}
             voteSummary={voteSummary}
             onReplay={onReplay}
@@ -334,7 +352,7 @@ function RaceView({
       ) : (
         <div className="w-full flex-1 flex flex-col items-center justify-center min-h-0 gap-12">
           <StatsBar
-            timeLeft={timeLeft}
+            elapsedTime={elapsedTime}
             wpm={stats.wpm}
             accuracy={stats.accuracy}
             gameStatus={gameStatus}

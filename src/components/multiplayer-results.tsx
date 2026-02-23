@@ -20,6 +20,7 @@ interface VoteSummaryEntry {
 
 interface MultiplayerResultsProps {
   rankings: PlayerRanking[];
+  waitingForPlayers?: number;
   myVote: "replay" | "exit" | undefined;
   voteSummary: VoteSummaryEntry[];
   onReplay: () => void;
@@ -41,6 +42,7 @@ const MEDALS = ["1st", "2nd", "3rd", "4th", "5th"];
  */
 export function MultiplayerResults({
   rankings,
+  waitingForPlayers,
   myVote,
   voteSummary,
   onReplay,
@@ -49,6 +51,7 @@ export function MultiplayerResults({
   const hasVoted = myVote !== undefined;
   const anyoneVoted = voteSummary.some((v) => v.vote !== undefined);
   const waitingCount = voteSummary.filter((v) => v.vote === undefined).length;
+  const isWaitingForPlayers = waitingForPlayers !== undefined && waitingForPlayers > 0;
 
   const topThree = rankings.slice(0, 3);
   const others = rankings.slice(3);
@@ -61,8 +64,13 @@ export function MultiplayerResults({
             Leaderboard
           </h2>
           <h1 className="text-4xl font-black tracking-tighter text-foreground italic uppercase">
-            The Race is Over
+            {isWaitingForPlayers ? "You Finished!" : "The Race is Over"}
           </h1>
+          {isWaitingForPlayers && (
+            <p className="text-sm font-bold text-muted-foreground animate-pulse">
+              Waiting for {waitingForPlayers} player{waitingForPlayers !== 1 ? "s" : ""}...
+            </p>
+          )}
         </div>
 
         {/* Podium View */}
@@ -165,11 +173,7 @@ export function MultiplayerResults({
                   {entry.name}
                 </span>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-50">
-                  {entry.vote === "replay"
-                    ? "Ready"
-                    : entry.vote === "exit"
-                      ? "Left"
-                      : "Deciding"}
+                  {entry.vote === "replay" ? "Ready" : entry.vote === "exit" ? "Left" : "Deciding"}
                 </span>
               </div>
             ))}

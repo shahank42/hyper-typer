@@ -235,7 +235,7 @@ export const start = mutation({
   },
 });
 
-/** Scheduled internal mutation. Transitions countdown -> running, schedules `endRace`. */
+/** Scheduled internal mutation. Transitions countdown -> running. */
 export const beginRace = internalMutation({
   args: {
     gameId: v.id("games"),
@@ -248,10 +248,6 @@ export const beginRace = internalMutation({
     await ctx.db.patch(args.gameId, {
       status: "running",
       startedAt: Date.now(),
-    });
-
-    await ctx.scheduler.runAfter(game.duration * 1000, internal.games.endRace, {
-      gameId: args.gameId,
     });
 
     return null;
@@ -294,13 +290,12 @@ export const updateProgress = mutation({
   },
 });
 
-/** Marks a player as finished. Ends the game early if all players are done. */
+/** Marks a player as finished. Schedules game end when all players finish. */
 export const finishPlayer = mutation({
   args: {
     gameId: v.id("games"),
     guestId: v.string(),
   },
-  returns: v.null(),
   handler: async (ctx, args) => {
     const player = await ctx.db
       .query("players")
@@ -321,21 +316,18 @@ export const finishPlayer = mutation({
       .withIndex("by_gameId", (q) => q.eq("gameId", args.gameId))
       .collect();
 
-    const allFinished = allPlayers.every((p) => p._id === player._id || p.finished);
+    const allFinished = allPlayers.every((p) => p.finished);
 
     if (allFinished) {
-      const game = await ctx.db.get(args.gameId);
-      if (game && game.status === "running") {
-        await ctx.db.patch(args.gameId, { status: "finished" });
-      }
+      await ctx.scheduler.runAfter(2500, internal.games.endGame, { gameId: args.gameId });
     }
 
     return null;
   },
 });
 
-/** Scheduled internal mutation. Timer-based game termination. Idempotent. */
-export const endRace = internalMutation({
+/** Ends the game. Called when all players finish. */
+export const endGame = internalMutation({
   args: {
     gameId: v.id("games"),
   },

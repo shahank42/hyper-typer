@@ -5,6 +5,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { Racer, RacerColor } from "~/lib/types";
 import { getForwardProgress } from "~/lib/stats";
+import { calculateElapsedSeconds } from "~/lib/time";
 
 interface VoteSummaryEntry {
   name: string;
@@ -19,7 +20,7 @@ interface VoteSummaryEntry {
  * When a replay swings `currentGameId` to a new game, this hook
  * automatically returns the new data — no navigation needed.
  *
- * Derives countdown and race timers client-side from server timestamps.
+ * Derives elapsed time and countdown timers client-side from server timestamps.
  * Timer state is derived during render to avoid effect synchronization issues.
  *
  * Effect count: 1 (single interval for active timers).
@@ -33,14 +34,10 @@ export function useMultiplayerGame(roomId: Id<"rooms">, guestId: string) {
   const game = data?.game ?? null;
   const players = data?.players ?? [];
 
-  // Derive timeLeft and countdownSeconds during render from server timestamps.
-  // This eliminates the need for effect-based state resets.
-  const derivedTimeLeft =
-    !game || game.status === "waiting" || game.status === "countdown"
-      ? (game?.duration ?? 30)
-      : game.status === "finished"
-        ? 0
-        : Math.max(0, game.duration - Math.floor((Date.now() - game.startedAt!) / 1000));
+  const derivedElapsedTime =
+    game?.startedAt && game.status !== "waiting" && game.status !== "countdown"
+      ? calculateElapsedSeconds(game.startedAt)
+      : 0;
 
   const derivedCountdownSeconds =
     !game || game.status !== "countdown" || !game.countdownStartedAt
@@ -90,7 +87,7 @@ export function useMultiplayerGame(roomId: Id<"rooms">, guestId: string) {
     isHost,
     myPlayer,
     remotePlayers,
-    timeLeft: derivedTimeLeft,
+    elapsedTime: derivedElapsedTime,
     countdownSeconds: derivedCountdownSeconds,
     myVote,
     voteSummary,

@@ -26,17 +26,18 @@ export const Route = createFileRoute("/")({
  * multiplayer rooms via the "Create Room" button.
  */
 function TypingTestPage() {
-  const { passage, gameStatus, timeLeft, start, restart } = useSoloGame();
+  const { passage, gameStatus, elapsedTime, finalTime, start, finish, restart } = useSoloGame();
   const { typed, totalKeystrokes, errors, handleChange, handleKeyDown, reset } = useLocalTyping(
     passage,
     gameStatus,
-    { onStart: start },
+    { onStart: start, onFinish: finish },
   );
   const createRoom = useMutation(api.games.create);
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
 
-  const elapsed = gameStatus === "idle" ? 0 : 30 - timeLeft || 0.1;
+  const timeForStats = gameStatus === "finished" && finalTime !== null ? finalTime : elapsedTime;
+  const elapsed = gameStatus === "idle" ? 0 : timeForStats || 0.1;
   const stats = getPlayerStats(typed, passage, totalKeystrokes, errors, elapsed);
 
   const racers: Racer[] = [
@@ -110,7 +111,7 @@ function TypingTestPage() {
       ) : (
         <div className="w-full flex-1 flex flex-col items-center justify-center min-h-0 gap-12">
           <StatsBar
-            timeLeft={timeLeft}
+            elapsedTime={elapsedTime}
             wpm={stats.wpm}
             accuracy={stats.accuracy}
             gameStatus={gameStatus}

@@ -2,26 +2,27 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { GameStatus } from "~/lib/types";
 import { pickRandom } from "~/lib/passages";
-
-const TEST_DURATION = 30;
+import { calculateElapsedSeconds } from "~/lib/time";
 
 /**
- * Manages the solo game lifecycle: passage selection, countdown timer,
+ * Manages the solo game lifecycle: passage selection, elapsed time counter,
  * and status transitions (idle → running → finished).
  *
- * In multiplayer, this entire hook is replaced by `useMultiplayerGame(gameId)`
- * which returns the same shape from Convex subscriptions.
+ * Game ends when the user completes the passage (reaches the finish line),
+ * not when a timer expires.
  *
  * - `start()` is called by `useLocalTyping`'s `onStart` callback on first keystroke.
- * - `restart()` picks a new passage and resets the timer.
- * - Timer ticks every 1000ms using `Date.now()` deltas for drift-resistant countdown.
+ * - `restart()` picks a new passage and resets state.
+ * - Elapsed time counts up from 0 while the game is running.
+ * - `finalTime` is captured when the player finishes (for frozen WPM display).
  *
  * Effect count: 1 (cleanup on unmount).
  */
 export function useSoloGame() {
   const [passage, setPassage] = useState(() => pickRandom());
   const [gameStatus, setGameStatus] = useState<GameStatus>("idle");
-  const [timeLeft, setTimeLeft] = useState(TEST_DURATION);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [finalTime, setFinalTime] = useState<number | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -36,15 +37,18 @@ export function useSoloGame() {
   const start = useCallback(() => {
     startTimeRef.current = Date.now();
     timerRef.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - (startTimeRef.current ?? Date.now())) / 1000);
-      const remaining = Math.max(0, TEST_DURATION - elapsed);
-      setTimeLeft(remaining);
-      if (remaining <= 0) {
-        clearTimer();
-        setGameStatus("finished");
-      }
+      const elapsed = calculateElapsedSeconds(startTimeRef.current ?? undefined);
+      setElapsedTime(elapsed);
     }, 1000);
     setGameStatus("running");
+  }, []);
+
+  const finish = useCallback(() => {
+    clearTimer();
+    const finalElapsed = calculateElapsedSeconds(startTimeRef.current ?? undefined);
+    setElapsedTime(finalElapsed);
+    setFinalTime(finalElapsed);
+    setGameStatus("finished");
   }, [clearTimer]);
 
   useEffect(() => {
@@ -55,9 +59,10 @@ export function useSoloGame() {
     clearTimer();
     setPassage(pickRandom(passage));
     setGameStatus("idle");
-    setTimeLeft(TEST_DURATION);
+    setElapsedTime(0);
+    setFinalTime(null);
     startTimeRef.current = null;
   }, [clearTimer, passage]);
 
-  return { passage, gameStatus, timeLeft, start, restart };
+  return { passage, gameStatus, elapsedTime, finalTime, start, finish, restart };
 }

@@ -45,15 +45,19 @@ export function RaceTrack({ racers, gameStatus }: RaceTrackProps) {
               {/* Lane Info */}
               <div className="flex justify-between items-end mb-4 px-1">
                 <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm transition-all duration-300",
-                    "bg-muted text-muted-foreground group-hover/lane:bg-primary/10 group-hover/lane:text-primary",
-                    isMoving && "ring-1 ring-primary/20"
-                  )}>
+                  <span
+                    className={cn(
+                      "text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded-sm transition-all duration-300",
+                      "bg-muted text-muted-foreground group-hover/lane:bg-primary/10 group-hover/lane:text-primary",
+                      isMoving && "ring-1 ring-primary/20",
+                    )}
+                  >
                     {racer.name}
                   </span>
                   {racer.finished && (
-                    <span className="text-[10px] font-bold text-green-500 animate-pulse">FINISHED</span>
+                    <span className="text-[10px] font-bold text-green-500 animate-pulse">
+                      FINISHED
+                    </span>
                   )}
                 </div>
                 <span className="text-[10px] font-mono font-bold text-muted-foreground opacity-0 group-hover/lane:opacity-100 transition-opacity">
@@ -67,10 +71,12 @@ export function RaceTrack({ racers, gameStatus }: RaceTrackProps) {
                   className="absolute top-1/2 -translate-y-1/2 z-20 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                   style={{ left: `calc(${percentage}% - 1.25rem)` }}
                 >
-                  <div className={cn(
-                    "relative group/car transition-transform duration-300 hover:scale-110",
-                    isMoving && "animate-[tw-shake_0.2s_ease-in-out_infinite]"
-                  )}>
+                  <div
+                    className={cn(
+                      "relative group/car transition-transform duration-300 hover:scale-110",
+                      isMoving && "animate-[tw-shake_0.2s_ease-in-out_infinite]",
+                    )}
+                  >
                     <CarSVG
                       color={racer.color}
                       className={cn(
@@ -79,23 +85,25 @@ export function RaceTrack({ racers, gameStatus }: RaceTrackProps) {
                       )}
                     />
                     {/* Visual Glow behind car */}
-                    <div 
+                    <div
                       className={cn(
                         "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-16 blur-xl transition-opacity duration-500 pointer-events-none -z-10",
-                        isMoving ? "opacity-30" : "opacity-0 group-hover/lane:opacity-20"
+                        isMoving ? "opacity-30" : "opacity-0 group-hover/lane:opacity-20",
                       )}
-                      style={{ 
-                        backgroundColor: GLOW_COLORS[racer.color] || "#888"
+                      style={{
+                        backgroundColor: GLOW_COLORS[racer.color] || "#888",
                       }}
                     />
                   </div>
                 </div>
 
                 {/* Checkered flag at finish */}
-                <div className={cn(
-                  "absolute right-[-1rem] top-1/2 -translate-y-1/2 z-0 transition-all duration-500",
-                  racer.finished ? "opacity-100 scale-110" : "opacity-10 scale-90"
-                )}>
+                <div
+                  className={cn(
+                    "absolute right-[-1rem] top-1/2 -translate-y-1/2 z-0 transition-all duration-500",
+                    racer.finished ? "opacity-100 scale-110" : "opacity-10 scale-90",
+                  )}
+                >
                   <CheckeredFlag className="h-6 w-auto" />
                 </div>
               </div>
