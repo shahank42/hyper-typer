@@ -5,13 +5,13 @@ interface CountdownOverlayProps {
 /** Full-screen 3-2-1 countdown overlay shown during the countdown phase. */
 export function CountdownOverlay({ seconds }: CountdownOverlayProps) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl z-30">
-      <div className="text-center">
-        <div className="text-8xl font-bold tabular-nums text-primary animate-pulse">
-          {seconds > 0 ? seconds : "GO!"}
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">Get ready...</p>
+    <div className="absolute inset-0 flex flex-col items-center justify-center z-30 pointer-events-none transition-all duration-1000">
+      <div className="text-[200px] font-bold tabular-nums text-primary tracking-tighter drop-shadow-2xl opacity-90 transition-all scale-110">
+        {seconds > 0 ? seconds : "GO!"}
       </div>
+      <p className="text-xl font-bold uppercase tracking-[0.5em] text-muted-foreground mt-4 opacity-50">
+        Get ready
+      </p>
     </div>
   );
 }

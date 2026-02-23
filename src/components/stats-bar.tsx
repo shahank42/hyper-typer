@@ -17,27 +17,31 @@ interface StatsBarProps {
  */
 export function StatsBar({ timeLeft, wpm, accuracy, gameStatus }: StatsBarProps) {
   return (
-    <div className="flex items-center gap-6 text-sm font-mono">
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">TIME</span>
+    <div className="flex items-center gap-12 font-mono text-primary w-full justify-start opacity-80 mb-4 transition-opacity duration-500">
+      <div className="flex flex-col items-start">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+          Time
+        </span>
         <span
           className={cn(
-            "text-xl font-bold tabular-nums",
-            timeLeft <= 5 && gameStatus === "running" && "text-red-500",
+            "text-4xl font-bold tabular-nums tracking-tighter transition-colors",
+            timeLeft <= 5 && gameStatus === "running" && "text-red-500 animate-pulse",
           )}
         >
-          {timeLeft}s
+          {timeLeft}
         </span>
       </div>
-      <div className="h-6 w-px bg-border" />
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">WPM</span>
-        <span className="text-xl font-bold tabular-nums">{wpm}</span>
+      <div className="flex flex-col items-start">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+          WPM
+        </span>
+        <span className="text-4xl font-bold tabular-nums tracking-tighter">{wpm}</span>
       </div>
-      <div className="h-6 w-px bg-border" />
-      <div className="flex items-center gap-2">
-        <span className="text-muted-foreground">ACC</span>
-        <span className="text-xl font-bold tabular-nums">{accuracy}%</span>
+      <div className="flex flex-col items-start">
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+          ACC
+        </span>
+        <span className="text-4xl font-bold tabular-nums tracking-tighter">{accuracy}%</span>
       </div>
     </div>
   );

@@ -8,7 +8,6 @@ import type { GameStatus, Racer, RacerColor } from "~/lib/types";
 import { getPlayerStats, getRemotePlayerStats, getForwardProgress } from "~/lib/stats";
 import { pickRandom } from "~/lib/passages";
 
-import { Card, CardContent } from "~/components/ui/card";
 import { RaceTrack } from "~/components/race-track";
 import { StatsBar } from "~/components/stats-bar";
 import { TypingArea } from "~/components/typing-area";
@@ -110,16 +109,14 @@ function RoomPage() {
     };
 
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground">Join this room!</p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12">
+        <div className="w-full text-left opacity-50 mb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+          <p className="text-sm text-muted-foreground mt-2">Join this room!</p>
         </div>
-        <Card className="w-full max-w-sm shadow-lg">
-          <CardContent className="pt-6">
-            <JoinForm onJoin={handleJoin} isLoading={isJoining} />
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md">
+          <JoinForm onJoin={handleJoin} isLoading={isJoining} />
+        </div>
       </main>
     );
   }
@@ -132,22 +129,20 @@ function RoomPage() {
     };
 
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground">Waiting for players...</p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12">
+        <div className="w-full text-left opacity-50 mb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+          <p className="text-sm text-muted-foreground mt-2">Waiting for players...</p>
         </div>
-        <Card className="w-full max-w-md shadow-lg">
-          <CardContent className="pt-6">
-            <Lobby
-              players={players.map((p) => ({ name: p.name, color: p.color }))}
-              isHost={isHost}
-              shareUrl={shareUrl}
-              onStart={handleStart}
-              canStart={players.length >= 1}
-            />
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-xl">
+          <Lobby
+            players={players.map((p) => ({ name: p.name, color: p.color }))}
+            isHost={isHost}
+            shareUrl={shareUrl}
+            onStart={handleStart}
+            canStart={players.length >= 1}
+          />
+        </div>
       </main>
     );
   }
@@ -162,17 +157,15 @@ function RoomPage() {
     }));
 
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground">Get ready!</p>
+      <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 relative">
+        <div className="w-full text-left opacity-50 mb-4">
+          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+          <p className="text-sm text-muted-foreground mt-2">Get ready!</p>
         </div>
-        <Card className="w-full max-w-3xl shadow-lg relative">
-          <CardContent className="space-y-6 pt-6">
-            <RaceTrack racers={allRacersAtZero} gameStatus="idle" />
-          </CardContent>
-          <CountdownOverlay seconds={countdownSeconds} />
-        </Card>
+        <div className="w-full space-y-12 relative opacity-50 blur-sm pointer-events-none transition-all duration-1000">
+          <RaceTrack racers={allRacersAtZero} gameStatus="idle" />
+        </div>
+        <CountdownOverlay seconds={countdownSeconds} />
       </main>
     );
   }
@@ -323,34 +316,13 @@ function RaceView({
       : [];
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
-      <div className="text-center space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">hyper-typer</h1>
-        <p className="text-sm text-muted-foreground">
-          {gameStatus === "running" ? "Type fast, type accurate!" : "Game complete!"}
-        </p>
+    <main className="h-dvh flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 overflow-hidden">
+      <div className="w-full text-left opacity-50 mb-4 shrink-0">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
       </div>
 
-      <StatsBar
-        timeLeft={timeLeft}
-        wpm={stats.wpm}
-        accuracy={stats.accuracy}
-        gameStatus={gameStatus}
-      />
-
-      <Card className="w-full max-w-3xl shadow-lg relative">
-        <CardContent className="space-y-6 pt-6">
-          <RaceTrack racers={racers} gameStatus={gameStatus} />
-          <TypingArea
-            passage={passage}
-            typed={typed}
-            gameStatus={gameStatus}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-          />
-        </CardContent>
-
-        {gameStatus === "finished" && (
+      {gameStatus === "finished" ? (
+        <div className="w-full flex-1 flex items-center justify-center relative min-h-0">
           <MultiplayerResults
             rankings={rankings}
             myVote={myVote}
@@ -358,8 +330,30 @@ function RaceView({
             onReplay={onReplay}
             onLeave={onLeave}
           />
-        )}
-      </Card>
+        </div>
+      ) : (
+        <div className="w-full flex-1 flex flex-col items-center justify-center min-h-0 gap-12">
+          <StatsBar
+            timeLeft={timeLeft}
+            wpm={stats.wpm}
+            accuracy={stats.accuracy}
+            gameStatus={gameStatus}
+          />
+
+          <div className="w-full space-y-12 relative flex-1 flex flex-col min-h-0">
+            <RaceTrack racers={racers} gameStatus={gameStatus} />
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
+              <TypingArea
+                passage={passage}
+                typed={typed}
+                gameStatus={gameStatus}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -10,7 +10,6 @@ import { pickRandom } from "~/lib/passages";
 import { getGuestId } from "~/lib/guest";
 
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
 import { RaceTrack } from "~/components/race-track";
 import { StatsBar } from "~/components/stats-bar";
 import { TypingArea } from "~/components/typing-area";
@@ -68,74 +67,70 @@ function TypingTestPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-4 gap-6">
-      <div className="text-center space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">hyper-typer</h1>
-        <p className="text-sm text-muted-foreground">
-          {gameStatus === "idle"
-            ? "Start typing to begin the race"
-            : gameStatus === "running"
-              ? "Type fast, type accurate!"
-              : "Race complete!"}
-        </p>
+    <main className="h-dvh flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 overflow-hidden">
+      <div className="w-full flex justify-between items-center opacity-50 mb-8 shrink-0">
+        <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+        <div className="flex items-center gap-3">
+          {gameStatus === "running" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRestart}
+              className="gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Restart
+            </Button>
+          )}
+
+          {gameStatus === "idle" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCreateRoom}
+              disabled={isCreating}
+              className="gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <Users className="h-4 w-4" />
+              {isCreating ? "Creating..." : "Multiplayer"}
+            </Button>
+          )}
+        </div>
       </div>
 
-      <StatsBar
-        timeLeft={timeLeft}
-        wpm={stats.wpm}
-        accuracy={stats.accuracy}
-        gameStatus={gameStatus}
-      />
-
-      <Card className="w-full max-w-3xl shadow-lg relative">
-        <CardContent className="space-y-6 pt-6">
-          <RaceTrack racers={racers} gameStatus={gameStatus} />
-
-          <TypingArea
-            passage={passage}
-            typed={typed}
-            gameStatus={gameStatus}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-          />
-        </CardContent>
-
-        {gameStatus === "finished" && (
+      {gameStatus === "finished" ? (
+        <div className="w-full flex-1 flex items-center justify-center relative min-h-0">
           <ResultsOverlay
             wpm={stats.wpm}
             accuracy={stats.accuracy}
             progress={stats.progress}
             onRestart={handleRestart}
           />
-        )}
-      </Card>
+        </div>
+      ) : (
+        <div className="w-full flex-1 flex flex-col items-center justify-center min-h-0 gap-12">
+          <StatsBar
+            timeLeft={timeLeft}
+            wpm={stats.wpm}
+            accuracy={stats.accuracy}
+            gameStatus={gameStatus}
+          />
 
-      <div className="flex items-center gap-3">
-        {gameStatus === "running" && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRestart}
-            className="gap-2 text-muted-foreground"
-          >
-            <RotateCcw className="h-3 w-3" />
-            Restart
-          </Button>
-        )}
+          <div className="w-full space-y-12 relative flex-1 flex flex-col min-h-0">
+            <RaceTrack racers={racers} gameStatus={gameStatus} />
 
-        {gameStatus === "idle" && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCreateRoom}
-            disabled={isCreating}
-            className="gap-2"
-          >
-            <Users className="h-3 w-3" />
-            {isCreating ? "Creating..." : "Create Room"}
-          </Button>
-        )}
-      </div>
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
+              <TypingArea
+                passage={passage}
+                typed={typed}
+                gameStatus={gameStatus}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

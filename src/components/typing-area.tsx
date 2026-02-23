@@ -39,8 +39,8 @@ export function TypingArea({ passage, typed, gameStatus, onChange, onKeyDown }: 
     <>
       <div
         className={cn(
-          "rounded-lg border border-border bg-muted/30 p-6 cursor-text min-h-[120px]",
-          gameStatus === "finished" && "opacity-50",
+          "w-full cursor-text relative transition-opacity duration-300 py-4",
+          gameStatus === "finished" && "opacity-30 blur-[2px] pointer-events-none",
         )}
         onClick={focusInput}
       >

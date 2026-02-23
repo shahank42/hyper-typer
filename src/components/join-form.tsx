@@ -21,22 +21,30 @@ export function JoinForm({ onJoin, isLoading }: JoinFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <label htmlFor="player-name" className="text-sm font-medium">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-4">
+        <label
+          htmlFor="player-name"
+          className="text-sm uppercase tracking-widest font-bold text-muted-foreground"
+        >
           Enter your name
         </label>
         <Input
           id="player-name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your name"
+          placeholder="Guest"
           maxLength={20}
           autoFocus
           disabled={isLoading}
+          className="h-16 text-2xl px-6 border-2 border-border/50 bg-muted/10 font-bold focus-visible:ring-primary/20 transition-all placeholder:text-muted-foreground/30"
         />
       </div>
-      <Button type="submit" disabled={!name.trim() || isLoading} className="w-full">
+      <Button
+        type="submit"
+        disabled={!name.trim() || isLoading}
+        className="w-full h-16 text-lg uppercase tracking-wider font-bold rounded-2xl"
+      >
         {isLoading ? "Joining..." : "Join Race"}
       </Button>
     </form>
