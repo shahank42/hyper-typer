@@ -8,7 +8,6 @@ interface JoinFormProps {
   isLoading: boolean;
 }
 
-/** Name input form shown to visitors who haven't joined a room yet. */
 export function JoinForm({ onJoin, isLoading }: JoinFormProps) {
   const [name, setName] = useState("");
 

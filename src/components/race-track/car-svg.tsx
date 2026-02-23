@@ -1,47 +1,13 @@
 import type { RacerColor } from "~/lib/types";
-
-/**
- * Maps each `RacerColor` to Tailwind fill classes for the car body and taillight.
- * The body color is the primary visual identifier on the track; the taillight
- * uses a lighter shade of the same hue.
- */
-const COLOR_MAP: Record<RacerColor, { body: string; taillight: string }> = {
-  red: {
-    body: "fill-red-500 dark:fill-red-400",
-    taillight: "fill-red-300 dark:fill-red-200",
-  },
-  blue: {
-    body: "fill-blue-500 dark:fill-blue-400",
-    taillight: "fill-blue-300 dark:fill-blue-200",
-  },
-  green: {
-    body: "fill-green-500 dark:fill-green-400",
-    taillight: "fill-green-300 dark:fill-green-200",
-  },
-  purple: {
-    body: "fill-purple-500 dark:fill-purple-400",
-    taillight: "fill-purple-300 dark:fill-purple-200",
-  },
-  orange: {
-    body: "fill-orange-500 dark:fill-orange-400",
-    taillight: "fill-orange-300 dark:fill-orange-200",
-  },
-};
+import { CAR_COLOR_MAP } from "~/lib/constants";
 
 interface CarSVGProps {
   color: RacerColor;
   className?: string;
 }
 
-/**
- * Racing car SVG graphic. The body and taillight colors are driven by
- * the `color` prop via `COLOR_MAP`; all other parts (windows, wheels,
- * headlight, exhaust) use fixed neutral/accent colors.
- *
- * ViewBox is 120x50. Intended to be rendered at `h-9` to `h-11`.
- */
 export function CarSVG({ color, className }: CarSVGProps) {
-  const colors = COLOR_MAP[color];
+  const colors = CAR_COLOR_MAP[color];
 
   return (
     <svg viewBox="0 0 120 50" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>

@@ -6,19 +6,6 @@ interface TypingDisplayProps {
   typed: string;
 }
 
-/**
- * Character-by-character rendering of the passage with live diff coloring.
- *
- * Each character is independently colored based on the player's input:
- * - **Correct** (typed and matches) — green
- * - **Incorrect** (typed but wrong) — red with a subtle red background
- * - **Current** (next character to type) — default foreground with an
- *   animated pulsing cursor bar to the left
- * - **Untyped** — dimmed muted foreground
- *
- * Pure component — receives `passage` and `typed` as props. Used by both
- * solo and multiplayer modes, always showing the local player's input.
- */
 export function TypingDisplay({ passage, typed }: TypingDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 

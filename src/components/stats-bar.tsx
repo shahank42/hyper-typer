@@ -7,13 +7,6 @@ interface StatsBarProps {
   gameStatus: GameStatus;
 }
 
-/**
- * Horizontal bar displaying the local player's live stats: elapsed time,
- * words per minute, and accuracy percentage.
- *
- * When elapsedTime is provided, shows counting time (stopwatch).
- * Otherwise shows timeLeft for countdown mode.
- */
 export function StatsBar({ elapsedTime, wpm, accuracy, gameStatus: _gameStatus }: StatsBarProps) {
   const showElapsed = elapsedTime !== undefined;
   const timeValue = showElapsed ? elapsedTime : 0;

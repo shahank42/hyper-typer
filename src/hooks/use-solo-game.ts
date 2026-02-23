@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { GameStatus } from "~/lib/types";
 import { pickRandom } from "~/lib/passages";
 import { calculateElapsedSeconds } from "~/lib/time";
+import { TIMER_INTERVAL_MS } from "~/lib/constants";
 
 /**
  * Manages the solo game lifecycle: passage selection, elapsed time counter,
@@ -27,6 +28,9 @@ export function useSoloGame() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
+  /**
+   * Clears the active game timer.
+   */
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -34,15 +38,21 @@ export function useSoloGame() {
     }
   }, []);
 
+  /**
+   * Starts the game and the timer.
+   */
   const start = useCallback(() => {
     startTimeRef.current = Date.now();
     timerRef.current = setInterval(() => {
       const elapsed = calculateElapsedSeconds(startTimeRef.current ?? undefined);
       setElapsedTime(elapsed);
-    }, 1000);
+    }, TIMER_INTERVAL_MS);
     setGameStatus("running");
   }, []);
 
+  /**
+   * Finalizes the game, captures the final time, and clears the timer.
+   */
   const finish = useCallback(() => {
     clearTimer();
     const finalElapsed = calculateElapsedSeconds(startTimeRef.current ?? undefined);
@@ -55,6 +65,9 @@ export function useSoloGame() {
     return () => clearTimer();
   }, [clearTimer]);
 
+  /**
+   * Resets the game state to idle and picks a new passage.
+   */
   const restart = useCallback(() => {
     clearTimer();
     setPassage(pickRandom(passage));

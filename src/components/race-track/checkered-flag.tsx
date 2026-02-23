@@ -2,12 +2,6 @@ interface CheckeredFlagProps {
   className?: string;
 }
 
-/**
- * Checkered finish flag SVG. Placed at the right end of the race track.
- * Features a pole, 4x2 checker pattern, and a decorative ball on top.
- *
- * ViewBox is 36x52. Intended to be rendered at `h-12`.
- */
 export function CheckeredFlag({ className }: CheckeredFlagProps) {
   return (
     <svg viewBox="0 0 36 52" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>

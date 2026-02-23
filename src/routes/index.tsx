@@ -17,14 +17,12 @@ import { ResultsOverlay } from "~/components/results-overlay";
 import { useSoloGame } from "~/hooks/use-solo-game";
 import { useLocalTyping } from "~/hooks/use-local-typing";
 
+import { MIN_ELAPSED_SECONDS } from "~/lib/constants";
+
 export const Route = createFileRoute("/")({
   component: TypingTestPage,
 });
 
-/**
- * Solo typing test page. Also serves as the entry point for creating
- * multiplayer rooms via the "Create Room" button.
- */
 function TypingTestPage() {
   const { passage, gameStatus, elapsedTime, finalTime, start, finish, restart } = useSoloGame();
   const { typed, totalKeystrokes, errors, handleChange, handleKeyDown, reset } = useLocalTyping(
@@ -37,7 +35,7 @@ function TypingTestPage() {
   const [isCreating, setIsCreating] = useState(false);
 
   const timeForStats = gameStatus === "finished" && finalTime !== null ? finalTime : elapsedTime;
-  const elapsed = gameStatus === "idle" ? 0 : timeForStats || 0.1;
+  const elapsed = gameStatus === "idle" ? 0 : timeForStats || MIN_ELAPSED_SECONDS;
   const stats = getPlayerStats(typed, passage, totalKeystrokes, errors, elapsed);
 
   const racers: Racer[] = [

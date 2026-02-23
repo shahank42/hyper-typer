@@ -1,9 +1,10 @@
 import type { PlayerStats } from "~/lib/types";
+import { CHARS_PER_WORD } from "~/lib/constants";
 
 /**
  * Compute typing stats from raw input data.
  *
- * WPM: (correct characters / 5) / minutes elapsed.
+ * WPM: (correct characters / CHARS_PER_WORD) / minutes elapsed.
  * Accuracy: (total - errors) / total keystrokes. Backspace does not recover accuracy.
  */
 export function getPlayerStats(
@@ -16,7 +17,7 @@ export function getPlayerStats(
   const progress = passage.length > 0 ? typed.length / passage.length : 0;
 
   const correctChars = typed.split("").filter((char, i) => char === passage[i]).length;
-  const rawWpm = Math.round(correctChars / 5 / (elapsedSeconds / 60));
+  const rawWpm = Math.round(correctChars / CHARS_PER_WORD / (elapsedSeconds / 60));
   const wpm = Number.isFinite(rawWpm) ? rawWpm : 0;
 
   const rawAccuracy =
@@ -59,7 +60,7 @@ export function getRemotePlayerStats(
   const progress = passageLength > 0 ? typedLength / passageLength : 0;
 
   const correctChars = Math.max(0, totalKeystrokes - errors);
-  const rawWpm = Math.round(correctChars / 5 / (elapsedSeconds / 60));
+  const rawWpm = Math.round(correctChars / CHARS_PER_WORD / (elapsedSeconds / 60));
   const wpm = Number.isFinite(rawWpm) ? rawWpm : 0;
 
   const rawAccuracy =

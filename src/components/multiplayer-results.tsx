@@ -27,19 +27,8 @@ interface MultiplayerResultsProps {
   onLeave: () => void;
 }
 
-const COLOR_TEXT: Record<string, string> = {
-  red: "text-red-500",
-  blue: "text-blue-500",
-  green: "text-green-500",
-  purple: "text-purple-500",
-  orange: "text-orange-500",
-};
+import { COLOR_TEXT, RANK_MEDALS } from "~/lib/constants";
 
-const MEDALS = ["1st", "2nd", "3rd", "4th", "5th"];
-
-/**
- * Post-game results overlay with leaderboard and replay/leave voting.
- */
 export function MultiplayerResults({
   rankings,
   waitingForPlayers,
@@ -86,7 +75,7 @@ export function MultiplayerResults({
                 )}
               >
                 <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-2">
-                  {MEDALS[i]} PLACE
+                  {RANK_MEDALS[i]} PLACE
                 </div>
                 <div
                   className={cn(
@@ -125,7 +114,9 @@ export function MultiplayerResults({
                 key={player.name}
                 className="flex items-center gap-4 px-6 py-3 rounded-xl bg-muted/5 border border-border/20"
               >
-                <span className="text-xs font-bold text-muted-foreground w-8">{MEDALS[i + 3]}</span>
+                <span className="text-xs font-bold text-muted-foreground w-8">
+                  {RANK_MEDALS[i + 3]}
+                </span>
                 <span className={cn("font-bold flex-1 text-left", COLOR_TEXT[player.color])}>
                   {player.name}
                 </span>

@@ -12,15 +12,8 @@ interface LobbyProps {
   canStart: boolean;
 }
 
-const COLOR_DOTS: Record<string, string> = {
-  red: "bg-red-500",
-  blue: "bg-blue-500",
-  green: "bg-green-500",
-  purple: "bg-purple-500",
-  orange: "bg-orange-500",
-};
+import { COLOR_DOTS } from "~/lib/constants";
 
-/** Pre-game lobby showing player list, shareable room link, and host start button. */
 export function Lobby({ players, isHost, shareUrl, onStart, canStart }: LobbyProps) {
   const [copied, setCopied] = useState(false);
 

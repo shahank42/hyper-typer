@@ -7,13 +7,6 @@ interface ResultsOverlayProps {
   onRestart: () => void;
 }
 
-/**
- * Solo mode finish screen. Overlays the card with a blurred backdrop and
- * displays the player's final WPM, accuracy, and completion percentage.
- *
- * Not used in multiplayer — that mode has its own `MultiplayerResults`
- * component with a leaderboard layout.
- */
 export function ResultsOverlay({ wpm, accuracy, progress, onRestart }: ResultsOverlayProps) {
   return (
     <div className="w-full flex items-center justify-center animate-in fade-in zoom-in-95 duration-500">

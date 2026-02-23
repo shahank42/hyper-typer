@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import type { Racer, RacerColor } from "~/lib/types";
 import { getForwardProgress } from "~/lib/stats";
 import { calculateElapsedSeconds } from "~/lib/time";
+import { COUNTDOWN_DURATION, TIMER_INTERVAL_MS } from "~/lib/constants";
 
 interface VoteSummaryEntry {
   name: string;
@@ -42,14 +43,20 @@ export function useMultiplayerGame(roomId: Id<"rooms">, guestId: string) {
   const derivedCountdownSeconds =
     !game || game.status !== "countdown" || !game.countdownStartedAt
       ? 0
-      : Math.max(0, 3 - Math.floor((Date.now() - game.countdownStartedAt) / 1000));
+      : Math.max(
+          0,
+          COUNTDOWN_DURATION -
+            Math.floor((Date.now() - game.countdownStartedAt) / TIMER_INTERVAL_MS),
+        );
 
-  // Single interval to trigger re-renders for active timers.
-  // Uses 1000ms since UI only displays whole seconds.
+  /**
+   * Single interval to trigger re-renders for active timers.
+   * Uses TIMER_INTERVAL_MS since UI only displays whole seconds.
+   */
   useEffect(() => {
     if (!game || (game.status !== "countdown" && game.status !== "running")) return;
 
-    const interval = setInterval(() => setTick((t) => t + 1), 1000);
+    const interval = setInterval(() => setTick((t) => t + 1), TIMER_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [game?._id, game?.status]);
 

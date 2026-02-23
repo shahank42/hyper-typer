@@ -4,23 +4,13 @@ import { cn } from "~/lib/utils";
 import { CarSVG } from "~/components/race-track/car-svg";
 import { CheckeredFlag } from "~/components/race-track/checkered-flag";
 
+import { GLOW_COLORS } from "~/lib/constants";
+
 interface RaceTrackProps {
   racers: Racer[];
   gameStatus: GameStatus;
 }
 
-const GLOW_COLORS: Record<string, string> = {
-  red: "#ef4444",
-  blue: "#3b82f6",
-  green: "#22c55e",
-  purple: "#a855f7",
-  orange: "#f97316",
-};
-
-/**
- * Minimalist race track.
- * Each racer gets a sleek progress bar and their car SVG.
- */
 export function RaceTrack({ racers, gameStatus }: RaceTrackProps) {
   return (
     <div className="w-full relative select-none mt-12 mb-8 max-w-5xl group">

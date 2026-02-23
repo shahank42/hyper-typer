@@ -5,18 +5,6 @@ interface TrafficLightProps {
   className?: string;
 }
 
-/**
- * Traffic light SVG that reflects the current game status.
- *
- * - `"idle"` — red light active (waiting to start)
- * - `"running"` — green light active (race in progress)
- * - `"finished"` — yellow/amber light active (race over)
- *
- * The active light gets full opacity and a soft glow ring;
- * inactive lights are dimmed to 30-40% opacity.
- *
- * ViewBox is 28x64. Intended to be rendered at `h-14`.
- */
 export function TrafficLight({ status, className }: TrafficLightProps) {
   return (
     <svg viewBox="0 0 28 64" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
