@@ -53,6 +53,8 @@ export function TypingArea({ passage, typed, gameStatus, onChange, onKeyDown }: 
         value={typed}
         onChange={onChange}
         onKeyDown={onKeyDown}
+        onPaste={(e) => e.preventDefault()}
+        onDrop={(e) => e.preventDefault()}
         onBlur={focusInput}
         className="sr-only"
         autoComplete="off"

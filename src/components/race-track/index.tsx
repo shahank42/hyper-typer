@@ -51,28 +51,14 @@ export function RaceTrack({ racers, gameStatus }: RaceTrackProps) {
             return (
               <div
                 key={i}
-                className="absolute inset-x-6 flex gap-4"
+                className="absolute inset-x-6 border-t-[3px] border-dashed border-yellow-400/60 dark:border-yellow-300/40"
                 style={{ top: `${topPercent}%`, transform: "translateY(-50%)" }}
-              >
-                {Array.from({ length: 20 }).map((_, j) => (
-                  <div
-                    key={j}
-                    className="h-[3px] flex-1 bg-yellow-400/60 dark:bg-yellow-300/40 rounded-full"
-                  />
-                ))}
-              </div>
+              />
             );
           })}
 
           {laneCount === 1 && (
-            <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 flex gap-4">
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[3px] flex-1 bg-yellow-400/60 dark:bg-yellow-300/40 rounded-full"
-                />
-              ))}
-            </div>
+            <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 border-t-[3px] border-dashed border-yellow-400/60 dark:border-yellow-300/40" />
           )}
         </div>
 

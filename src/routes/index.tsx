@@ -1,8 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RotateCcw } from "lucide-react";
+import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useMutation } from "convex/react";
+import { RotateCcw, Users } from "lucide-react";
 
+import { api } from "../../convex/_generated/api";
 import type { Racer } from "~/lib/types";
 import { getPlayerStats } from "~/lib/stats";
+import { pickRandom } from "~/lib/passages";
+import { getGuestId } from "~/lib/guest";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -18,14 +23,8 @@ export const Route = createFileRoute("/")({
 });
 
 /**
- * Solo typing test page — the thin orchestrator.
- *
- * Wires two hooks (`useSoloGame` for lifecycle, `useLocalTyping` for input)
- * to four pure components (`StatsBar`, `RaceTrack`, `TypingArea`, `ResultsOverlay`).
- * Stats are computed via `getPlayerStats()` on every render — no derived state.
- *
- * The local player is represented as a single-element `Racer[]` array so the
- * `RaceTrack` renders identically to how it would with multiple players.
+ * Solo typing test page. Also serves as the entry point for creating
+ * multiplayer rooms via the "Create Room" button.
  */
 function TypingTestPage() {
   const { passage, gameStatus, timeLeft, start, restart } = useSoloGame();
@@ -34,6 +33,9 @@ function TypingTestPage() {
     gameStatus,
     { onStart: start },
   );
+  const createRoom = useMutation(api.games.create);
+  const navigate = useNavigate();
+  const [isCreating, setIsCreating] = useState(false);
 
   const elapsed = gameStatus === "idle" ? 0 : 30 - timeLeft || 0.1;
   const stats = getPlayerStats(typed, passage, totalKeystrokes, errors, elapsed);
@@ -51,6 +53,18 @@ function TypingTestPage() {
   const handleRestart = () => {
     restart();
     reset();
+  };
+
+  const handleCreateRoom = async () => {
+    setIsCreating(true);
+    try {
+      const hostId = getGuestId();
+      const roomPassage = pickRandom();
+      const roomId = await createRoom({ hostId, passage: roomPassage });
+      navigate({ to: "/room/$roomId", params: { roomId } });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -96,17 +110,32 @@ function TypingTestPage() {
         )}
       </Card>
 
-      {gameStatus === "running" && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleRestart}
-          className="gap-2 text-muted-foreground"
-        >
-          <RotateCcw className="h-3 w-3" />
-          Restart
-        </Button>
-      )}
+      <div className="flex items-center gap-3">
+        {gameStatus === "running" && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRestart}
+            className="gap-2 text-muted-foreground"
+          >
+            <RotateCcw className="h-3 w-3" />
+            Restart
+          </Button>
+        )}
+
+        {gameStatus === "idle" && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCreateRoom}
+            disabled={isCreating}
+            className="gap-2"
+          >
+            <Users className="h-3 w-3" />
+            {isCreating ? "Creating..." : "Create Room"}
+          </Button>
+        )}
+      </div>
     </main>
   );
 }

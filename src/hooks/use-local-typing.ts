@@ -4,8 +4,11 @@ import type { GameStatus } from "~/lib/types";
 
 interface UseLocalTypingOptions {
   /** Called on the first keystroke when `gameStatus` is `"idle"`. In solo mode
-   *  this starts the timer; in multiplayer it could signal readiness to the server. */
+   *  this starts the timer; in multiplayer the server drives the start. */
   onStart?: () => void;
+  /** Called exactly once when `typed.length` reaches `passage.length`.
+   *  In multiplayer this triggers `finishPlayer`; solo mode ignores it. */
+  onFinish?: () => void;
 }
 
 /**
@@ -20,8 +23,11 @@ interface UseLocalTypingOptions {
  * - All input is ignored once `gameStatus` is `"finished"`.
  *
  * The `onStart` callback fires exactly once, on the first character typed
- * while `gameStatus` is `"idle"`. It is stored in a ref to avoid re-creating
- * `handleChange` when the callback identity changes.
+ * while `gameStatus` is `"idle"`. The `onFinish` callback fires exactly once
+ * when the typed text reaches the passage length. Both are stored in refs
+ * to avoid re-creating `handleChange` when callback identities change.
+ *
+ * Effect count: 0.
  */
 export function useLocalTyping(
   passage: string,
@@ -34,6 +40,11 @@ export function useLocalTyping(
 
   const onStartRef = useRef(options?.onStart);
   onStartRef.current = options?.onStart;
+
+  const onFinishRef = useRef(options?.onFinish);
+  onFinishRef.current = options?.onFinish;
+
+  const finishedRef = useRef(false);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +67,11 @@ export function useLocalTyping(
       }
 
       setTyped(value);
+
+      if (value.length >= passage.length && !finishedRef.current) {
+        finishedRef.current = true;
+        onFinishRef.current?.();
+      }
     },
     [gameStatus, passage, typed.length],
   );
@@ -79,6 +95,7 @@ export function useLocalTyping(
     setTyped("");
     setTotalKeystrokes(0);
     setErrors(0);
+    finishedRef.current = false;
   }, []);
 
   return { typed, totalKeystrokes, errors, handleChange, handleKeyDown, reset };

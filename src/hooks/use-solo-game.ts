@@ -14,7 +14,9 @@ const TEST_DURATION = 30;
  *
  * - `start()` is called by `useLocalTyping`'s `onStart` callback on first keystroke.
  * - `restart()` picks a new passage and resets the timer.
- * - Timer ticks every 100ms using `Date.now()` deltas for drift-resistant countdown.
+ * - Timer ticks every 1000ms using `Date.now()` deltas for drift-resistant countdown.
+ *
+ * Effect count: 1 (cleanup on unmount).
  */
 export function useSoloGame() {
   const [passage, setPassage] = useState(() => pickRandom());
@@ -38,19 +40,16 @@ export function useSoloGame() {
       const remaining = Math.max(0, TEST_DURATION - elapsed);
       setTimeLeft(remaining);
       if (remaining <= 0) {
+        clearTimer();
         setGameStatus("finished");
       }
-    }, 100);
+    }, 1000);
     setGameStatus("running");
-  }, []);
-
-  useEffect(() => clearTimer, [clearTimer]);
+  }, [clearTimer]);
 
   useEffect(() => {
-    if (gameStatus === "finished") {
-      clearTimer();
-    }
-  }, [gameStatus, clearTimer]);
+    return () => clearTimer();
+  }, [clearTimer]);
 
   const restart = useCallback(() => {
     clearTimer();
