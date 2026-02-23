@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "convex/react";
+import { LogOut } from "lucide-react";
 
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -11,6 +12,7 @@ import { RaceTrack } from "~/components/race-track";
 import { Lobby } from "~/components/lobby";
 import { JoinForm } from "~/components/join-form";
 import { CountdownOverlay } from "~/components/countdown-overlay";
+import { Button } from "~/components/ui/button";
 import { useGuestId } from "~/hooks/use-guest-id";
 import { useMultiplayerGame } from "~/hooks/use-multiplayer-game";
 import { RaceView } from "~/components/race-view";
@@ -23,6 +25,7 @@ function RoomPage() {
   const { roomId } = Route.useParams();
   const guestId = useGuestId();
   const joinMutation = useMutation(api.games.join);
+  const leaveMutation = useMutation(api.games.leave);
   const startMutation = useMutation(api.games.start);
   const voteReplayMutation = useMutation(api.games.voteReplay);
   const voteExitMutation = useMutation(api.games.voteExit);
@@ -54,6 +57,11 @@ function RoomPage() {
       navigate({ to: "/" });
     }
   }, [isLoading, game, navigate]);
+
+  const handleExit = () => {
+    leaveMutation({ roomId: typedRoomId, guestId });
+    navigate({ to: "/" });
+  };
 
   // Early returns - all hooks must be called before these
   if (!guestId || isLoading) {
@@ -98,9 +106,15 @@ function RoomPage() {
 
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12">
-        <div className="w-full text-left opacity-50 mb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground mt-2">Join this room!</p>
+        <div className="w-full flex justify-between items-start opacity-50 mb-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+            <p className="text-sm text-muted-foreground mt-2">Join this room!</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleExit} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            Exit
+          </Button>
         </div>
         <div className="w-full max-w-md">
           <JoinForm onJoin={handleJoin} isLoading={isJoining} />
@@ -118,9 +132,15 @@ function RoomPage() {
 
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12">
-        <div className="w-full text-left opacity-50 mb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground mt-2">Waiting for players...</p>
+        <div className="w-full flex justify-between items-start opacity-50 mb-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+            <p className="text-sm text-muted-foreground mt-2">Waiting for players...</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleExit} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            Exit
+          </Button>
         </div>
         <div className="w-full max-w-xl">
           <Lobby
@@ -146,9 +166,15 @@ function RoomPage() {
 
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 relative">
-        <div className="w-full text-left opacity-50 mb-4">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
-          <p className="text-sm text-muted-foreground mt-2">Get ready!</p>
+        <div className="w-full flex justify-between items-start opacity-50 mb-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+            <p className="text-sm text-muted-foreground mt-2">Get ready!</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleExit} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            Exit
+          </Button>
         </div>
         <div className="w-full space-y-12 relative opacity-50 blur-sm pointer-events-none transition-all duration-1000">
           <RaceTrack racers={allRacersAtZero} gameStatus="idle" />
@@ -182,6 +208,7 @@ function RoomPage() {
       voteSummary={voteSummary}
       onReplay={handleReplay}
       onLeave={handleLeave}
+      onExit={handleExit}
     />
   );
 }

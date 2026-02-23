@@ -175,6 +175,64 @@ export const join = mutation({
   },
 });
 
+/**
+ * Allows a player to leave the room at any time.
+ * If the host leaves, the room is deleted.
+ * If the last player leaves, the room is deleted.
+ */
+export const leave = mutation({
+  args: {
+    roomId: v.id("rooms"),
+    guestId: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const room = await ctx.db.get(args.roomId);
+    if (!room) {
+      return null;
+    }
+
+    const currentGameId = room.currentGameId;
+    if (!currentGameId) {
+      return null;
+    }
+
+    const game = await ctx.db.get(currentGameId);
+    if (!game) {
+      return null;
+    }
+
+    const player = await ctx.db
+      .query("players")
+      .withIndex("by_gameId_and_guestId", (q) =>
+        q.eq("gameId", game._id).eq("guestId", args.guestId),
+      )
+      .unique();
+
+    if (!player) {
+      return null;
+    }
+
+    if (room.hostId === args.guestId) {
+      await deleteRoom(ctx, args.roomId);
+      return null;
+    }
+
+    await ctx.db.delete(player._id);
+
+    const remainingPlayers = await ctx.db
+      .query("players")
+      .withIndex("by_gameId", (q) => q.eq("gameId", game._id))
+      .collect();
+
+    if (remainingPlayers.length === 0) {
+      await deleteRoom(ctx, args.roomId);
+    }
+
+    return null;
+  },
+});
+
 /** Host-only. Transitions waiting -> countdown and schedules `beginRace`. */
 export const start = mutation({
   args: {

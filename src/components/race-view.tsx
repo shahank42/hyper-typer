@@ -1,3 +1,5 @@
+import { LogOut } from "lucide-react";
+
 import type { Id } from "../../convex/_generated/dataModel";
 import type { GameStatus, Racer, RacerColor } from "~/lib/types";
 import { getPlayerStats, getRemotePlayerStats, getForwardProgress } from "~/lib/stats";
@@ -8,6 +10,7 @@ import { RaceTrack } from "~/components/race-track";
 import { StatsBar } from "~/components/stats-bar";
 import { TypingArea } from "~/components/typing-area";
 import { MultiplayerResults } from "~/components/multiplayer-results";
+import { Button } from "~/components/ui/button";
 import { useLocalTyping } from "~/hooks/use-local-typing";
 import { useProgressSync } from "~/hooks/use-progress-sync";
 
@@ -42,6 +45,7 @@ export function RaceView({
   voteSummary,
   onReplay,
   onLeave,
+  onExit,
 }: {
   game: { status: string; startedAt?: number; duration: number };
   gameId: Id<"games">;
@@ -55,6 +59,7 @@ export function RaceView({
   voteSummary: VoteSummaryEntry[];
   onReplay: () => void;
   onLeave: () => void;
+  onExit: () => void;
 }) {
   const isLocallyFinished = myPlayer.finished;
   const showPersonalResults = isLocallyFinished && game.status === "running";
@@ -141,8 +146,12 @@ export function RaceView({
 
   return (
     <main className="h-dvh flex flex-col items-center justify-center p-8 max-w-5xl mx-auto gap-12 overflow-hidden">
-      <div className="w-full text-left opacity-50 mb-4 shrink-0">
+      <div className="w-full flex justify-between items-start opacity-50 mb-4 shrink-0">
         <h1 className="text-2xl font-bold tracking-tight text-primary">hyper-typer</h1>
+        <Button variant="ghost" size="sm" onClick={onExit} className="gap-2">
+          <LogOut className="h-4 w-4" />
+          Exit
+        </Button>
       </div>
 
       {effectiveStatus === "finished" ? (
